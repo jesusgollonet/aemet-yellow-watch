@@ -11,7 +11,7 @@ os.makedirs("images", exist_ok=True)
 
 # Get all images with data-src attribute
 images = soup.find_all("img", {"data-src": True})
-for image in images[:2]:
+for image in images:
     # Download image
     try:
         response = requests.get(f"https://www.aemet.es/{image['data-src']}")
