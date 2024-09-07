@@ -1,4 +1,5 @@
 import requests
+import os
 from bs4 import BeautifulSoup
 
 response = requests.get(
@@ -6,15 +7,17 @@ response = requests.get(
 )
 data = response.text
 soup = BeautifulSoup(data, "html.parser")
+os.makedirs("images", exist_ok=True)
 
 # Get all images with data-src attribute
 images = soup.find_all("img", {"data-src": True})
-for image in images:
+for image in images[:2]:
+    # Download image
     try:
-        print(image["data-src"])
-        # Download image
-        response = requests.get(f"https://www.aemet.es/{image["data-src"]}" )
-        with open(f"images/{image['data-src'].split('/')[-1]}", "wb") as file:
-            file.write(response.content)
-    except KeyError:
-        print("No src attribute")
+        response = requests.get(f"https://www.aemet.es/{image['data-src']}")
+        response.raise_for_status()
+    except Exception as e:
+        print(f"Error downloading image: {e}")
+
+    with open(f"images/{image['data-src'].split('/')[-1]}", "wb") as file:
+        file.write(response.content)
