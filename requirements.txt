@@ -1,2 +1,4 @@
 beautifulsoup4==4.12.3
+numpy==2.1.1
+opencv_contrib_python==4.10.0.84
 Requests==2.32.3
