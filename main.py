@@ -1,25 +1,33 @@
 import requests
 from bs4 import BeautifulSoup
-from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
+from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image, draw_text
 
 import cv2 as cv
 import numpy as np
 
 MIN_AREA = 700
 
+# fetch and parse HTML content
 response = requests.get(
     "https://www.aemet.es/es/eltiempo/prediccion/maritima?opc1=0&opc3=0&area=and2"
 )
 data = response.text
 soup = BeautifulSoup(data, "html.parser")
 
-
-# Get all images with data-src attribute
 images = soup.find_all("img", {"data-src": True})
 
+# let's set up 2 alerts
+"""
+1. if there's swell bigger than MIN_AREA for at least 2 images in a row
+2. if the swell touches our region
+
+in both cases, swell direction
+"""
+
+swell_counter = 0
+swell_detected = False
 
 for image in images:
-    # Download image
     try:
         response = requests.get(f"https://www.aemet.es/{image['data-src']}")
         response.raise_for_status()
@@ -43,29 +51,17 @@ for image in images:
         areas = [cv.contourArea(contour) for contour in contours]
         total_area = sum(areas)
         if total_area > MIN_AREA:
-            cv.putText(
-                img,
-                str(human_date(d) + ": " + str(total_area)),
-                (10, 30),
-                cv.FONT_HERSHEY_SIMPLEX,
-                1,
-                (255, 255, 255),
-                2,
-            )
-            # area = cv.contourArea(contours[0])
-            # Run your color detection or any OpenCV operation on `img`
-            cv.imshow("Image", img)
+            swell_counter += 1
+        else:
+            swell_counter = 0
 
-            # Wait for a key press
-            key = cv.waitKey(0)
+        if swell_counter >= 3 and not swell_detected:
+            print(f"ALERT: Swell detected on {human_date(d)}")
+            swell_detected = True
 
-            # If 'q' is pressed, break the loop and exit the program
-            if key == ord("q"):
-                print("Exiting the program.")
-                break
-            cv.destroyAllWindows()
+        if swell_detected and total_area < MIN_AREA:
+            swell_detected = False
+            print(f"ALERT: Swell ended on {human_date(d)}")
+
     except Exception as e:
         print(f"Error downloading image: {e}")
-
-    with open(f"images/{image['data-src'].split('/')[-1]}", "wb") as file:
-        file.write(response.content)

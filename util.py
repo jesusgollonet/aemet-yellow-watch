@@ -4,6 +4,18 @@ from datetime import datetime, timedelta
 import humanize
 
 
+def draw_text(text, img):
+    cv.putText(
+        img,
+        str(text),
+        (10, 30),
+        cv.FONT_HERSHEY_SIMPLEX,
+        1,
+        (255, 255, 255),
+        2,
+    )
+
+
 def rgb_to_hsv(rgb: list) -> np.ndarray:
     source = np.array(rgb, dtype=np.uint8).reshape(1, 1, 3)
     return cv.cvtColor(source, cv.COLOR_RGB2HSV)
