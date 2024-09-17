@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image, draw_text
+from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
 
 import cv2 as cv
 import numpy as np
@@ -18,7 +18,7 @@ images = soup.find_all("img", {"data-src": True})
 
 # let's set up 2 alerts
 """
-1. if there's swell bigger than MIN_AREA for at least 2 images in a row
+1. if there's swell bigger than MIN_AREA for at least 3 images in a row
 2. if the swell touches our region
 
 in both cases, swell direction
