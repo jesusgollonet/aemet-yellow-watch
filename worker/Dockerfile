@@ -9,9 +9,8 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-COPY main.py util.py ./
+COPY worker.py util.py ./
 RUN pip install -r requirements.txt
 
-EXPOSE 8080
 
-CMD ["python", "main.py"]
+CMD ["python", "worker.py"]

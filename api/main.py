@@ -1,5 +1,3 @@
-from swell_detector import detect_swells, Swell
-
 from fastapi import FastAPI
 
 app = FastAPI()
