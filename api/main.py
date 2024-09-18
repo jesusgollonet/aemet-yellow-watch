@@ -4,8 +4,8 @@ app = FastAPI()
 
 
 @app.get("/")
-def run_script() -> list[Swell]:
-    return detect_swells()
+async def root():
+    return {"message": "Hello World"}
 
 
 if __name__ == "__main__":
