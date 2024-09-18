@@ -89,5 +89,5 @@ def detect_swells() -> list[Swell]:
 
 
 if __name__ == "__main__":
-    swells = detect_swell()
+    swells = detect_swells()
     print(swells)
