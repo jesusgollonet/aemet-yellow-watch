@@ -1,17 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
-from datetime import date, datetime
-
 from pydantic import BaseModel
-
+from datetime import datetime
 import cv2 as cv
 import numpy as np
-
-from fastapi import FastAPI
-
-app = FastAPI()
-
 
 MIN_AREA = 700
 
@@ -21,8 +14,10 @@ class Swell(BaseModel):
     endDate: datetime | None
 
 
-@app.get("/")
-def run_script() -> list[Swell]:
+print("__name__:", __name__)
+
+
+def detect_swells() -> list[Swell]:
     swells: list[Swell] = []
     # fetch and parse HTML content
     response = requests.get(
@@ -94,6 +89,5 @@ def run_script() -> list[Swell]:
 
 
 if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    swells = detect_swells()
+    print(swells)
