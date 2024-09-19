@@ -7,14 +7,12 @@ import cv2 as cv
 import numpy as np
 
 MIN_AREA = 700
+MIN_SWELL_DURATION = 2
 
 
 class Swell(BaseModel):
     startDate: datetime
     endDate: datetime | None
-
-
-print("__name__:", __name__)
 
 
 def detect_swells() -> list[Swell]:
@@ -70,7 +68,7 @@ def detect_swells() -> list[Swell]:
             else:
                 swell_counter = 0
 
-            if swell_counter >= 3 and not swell_detected:
+            if swell_counter >= MIN_SWELL_DURATION and not swell_detected:
                 swells.append(Swell(startDate=d, endDate=None))
                 print(f"ALERT: Swell detected on {human_date(d)}")
                 swell_detected = True
@@ -90,4 +88,4 @@ def detect_swells() -> list[Swell]:
 
 if __name__ == "__main__":
     swells = detect_swells()
-    print(swells)
+    print([s.model_dump_json() for s in swells])
