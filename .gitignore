@@ -177,3 +177,5 @@ pyrightconfig.json
 
 images/**/*.png
 .DS_Store
+
+.credentials

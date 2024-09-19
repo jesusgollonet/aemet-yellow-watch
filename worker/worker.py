@@ -2,9 +2,26 @@ import requests
 from bs4 import BeautifulSoup
 from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
 from pydantic import BaseModel
+from pydantic.json import pydantic_encoder
 from datetime import datetime
 import cv2 as cv
 import numpy as np
+import json
+
+from google.cloud import storage
+
+
+def upload_blob(bucket_name, json_data, destination_blob_name):
+    print("upload blob")
+    """Uploads a file to the bucket."""
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_string(json_data)
+    print(f"File {destination_blob_name} uploaded to {bucket_name}.")
+
 
 MIN_AREA = 700
 MIN_SWELL_DURATION = 2
@@ -89,3 +106,8 @@ def detect_swells() -> list[Swell]:
 if __name__ == "__main__":
     swells = detect_swells()
     print([s.model_dump_json() for s in swells])
+    upload_blob(
+        "aemet-yellow-watch",
+        json.dumps([s.model_dump() for s in swells], default=pydantic_encoder),
+        "swells.json",
+    )
