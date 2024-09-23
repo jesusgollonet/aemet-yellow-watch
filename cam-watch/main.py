@@ -3,6 +3,9 @@ import cv2 as cv
 from datetime import datetime
 import tempfile
 from google.cloud import storage
+import os
+
+os.makedirs("frames", exist_ok=True)
 
 
 def upload_blob(bucket_name, local_filename, destination_blob_name):
