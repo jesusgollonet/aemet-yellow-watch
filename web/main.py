@@ -1,5 +1,6 @@
 from fasthtml.common import fast_app, Html, Head, Body, H1, Title, Div, P, serve
 from google.cloud import storage
+from datetime import datetime
 import json
 
 app, rt = fast_app()
@@ -7,6 +8,11 @@ app, rt = fast_app()
 storage_client = storage.Client()
 
 BUCKET_NAME = "aemet-yellow-watch"
+
+
+def time_format(time_iso):
+    t = datetime.fromisoformat(time_iso)
+    return t.strftime("%A at %I:%M %p")
 
 
 @rt("/")
@@ -30,13 +36,15 @@ def get():
                 # print("hey[]")
                 print(swell["startDate"])
                 swell_div = Div(
-                    P(f"Start Date: {swell['startDate']}"),
-                    P(f"End Date: {swell['endDate']}"),
+                    P(f"Starts on: {time_format(swell['startDate'])} "),
+                    P(f"Ends on: {time_format(swell['endDate'])}")
+                    if swell["endDate"]
+                    else None,
                 )
                 s.append(swell_div)
             page = Html(
                 Head(Title("Swell Watch")),
-                Body(H1("Swell Watch"), swells_div, *s),
+                Body(H1("Swell Watch"), *s),
             )
             return page
     except Exception as e:
