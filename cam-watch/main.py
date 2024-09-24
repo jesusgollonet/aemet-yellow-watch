@@ -3,7 +3,6 @@ import cv2 as cv
 from datetime import datetime
 import tempfile
 from google.cloud import storage
-import time
 import os
 
 os.makedirs("frames", exist_ok=True)
