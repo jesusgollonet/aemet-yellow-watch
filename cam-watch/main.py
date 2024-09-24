@@ -1,15 +1,24 @@
-import streamlink as sl
+from streamlink.session.session import Streamlink
 import cv2 as cv
 from datetime import datetime
 import tempfile
 from google.cloud import storage
+import time
 import os
 
 os.makedirs("frames", exist_ok=True)
 
+cams = [
+    "https://livecams.meteo365.es/hls_live/nerjaplaya.m3u8",
+    "https://livecams.meteo365.es/hls_live/nerja.m3u8",
+    "https://livecams.meteo365.es/hls_live/misericordia.m3u8",
+    "https://livecams.meteo365.es/hls_live/fglplaya.m3u8",
+    "https://livecams.meteo365.es/hls_live/fglpuerto.m3u8",
+    "https://livecam.meteo365.es/hls_live/mijas.m3u8",
+]
+
 
 def upload_blob(bucket_name, local_filename, destination_blob_name):
-    print("upload blob")
     """Uploads a file to the bucket."""
 
     storage_client = storage.Client()
@@ -21,7 +30,7 @@ def upload_blob(bucket_name, local_filename, destination_blob_name):
 
 
 def capture_frame(m3u8_url, stream_name):
-    session = sl.Streamlink(options={"http-headers": "Referer=https://meteo365.es/"})
+    session = Streamlink(options={"http-headers": "Referer=https://meteo365.es/"})
     streams = session.streams(m3u8_url)
     temp_file = tempfile.NamedTemporaryFile(delete=False)
     temp_file_name = temp_file.name
@@ -40,17 +49,15 @@ def capture_frame(m3u8_url, stream_name):
     _, frame = cap.read()
     print(f"storing image in {stream_name}...")
     file_name = f"{stream_name}_{datetime.timestamp(datetime.now()) }.jpg"
+    file_path = f"frames/{file_name}"
     print("filenmae", file_name)
-    cv.imwrite(f"frames/{file_name}", frame)
-    print(file_name, stream_name)
-    upload_blob(
-        "aemet-yellow-watch",
-        f"frames/{file_name}",
-        f"frames/{file_name}",
-    )
+    cv.imwrite(file_path, frame)
     cap.release()
+    return file_name, file_path
 
 
 if __name__ == "__main__":
-    print("scirpt!")
-    capture_frame("https://livecams.meteo365.es/hls_live/nerjaplaya.m3u8", "meteo365")
+    for cam in cams:
+        cam_name = cam.split("/")[-1].split(".")[0]
+        file_name, file_path = capture_frame(cam, cam_name)
+        upload_blob("aemet-yellow-watch", file_path, f"frames/{ file_name }")
