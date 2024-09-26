@@ -5,11 +5,8 @@
 AEMET Yellow Watch is a project that monitors and analyzes swell data along the
 Andalusian coast, particularly around Málaga.  It combines weather forecast
 image analysis from AEMET with live webcam footage to track potential swell
-conditions and provide real-time notifications. The goal is to create a scalable
-system that helps forecast ocean swells based on visual data.
-
-The goal is to provide an automated, scalable system that monitors swell
-activity, not only for Málaga but eventually for other regions as well. This
+conditions and provide real-time notifications. The goal is to create an automated, 
+scalable system that helps forecast ocean swells based on visual data. This
 project will evolve to include more data sources and improved prediction
 accuracy.
 
