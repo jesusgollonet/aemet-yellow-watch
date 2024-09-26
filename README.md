@@ -10,6 +10,7 @@ scalable system that helps forecast ocean swells based on visual data. This
 project will evolve to include more data sources and improved prediction
 accuracy.
 
+![aemet-yellow](img/aemet-yellow.png)
 
 ## Project Structure
 
