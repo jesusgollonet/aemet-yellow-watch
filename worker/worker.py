@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
+from common_lib.util import rgb_to_hsv, hsv_bounds, human_date, date_from_image
 from pydantic import BaseModel
 from pydantic.json import pydantic_encoder
 from datetime import datetime
