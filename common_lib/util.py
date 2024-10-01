@@ -29,6 +29,16 @@ def hsv_bounds(hsv: np.ndarray, margin: int = 2) -> tuple:
 def detect_yellow():
     return None
 
+def color_contours(img, color_rgb):
+    hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    lower, upper = hsv_bounds(rgb_to_hsv(color_rgb), 10)
+    mask = cv.inRange(hsv, lower, upper)
+    img = cv.bitwise_and(img, img, mask=mask)
+    contours, _ = cv.findContours(
+        mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE
+    )
+    return contours
+
 
 def date_from_image(image):
     date_source = image["data-src"].split("/")[-1].split("_")[0]
