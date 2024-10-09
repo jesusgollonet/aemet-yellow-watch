@@ -179,3 +179,4 @@ images/**/*.png
 .DS_Store
 
 .credentials
+scratch/images/**/*.png
