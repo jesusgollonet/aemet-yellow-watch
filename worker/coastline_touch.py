@@ -30,18 +30,19 @@ TOUCH_THRESHOLD = 6
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
-def _hsv_bounds(rgb: tuple, h_delta=5, s_delta=30, v_delta=30):
+def _hsv_bounds(rgb: tuple, h_delta=5, s_lo=100, v_lo=100):
+    """Lock to a hue band; accept anything above s_lo/v_lo thresholds."""
     source = np.array(rgb, dtype=np.uint8).reshape(1, 1, 3)
     hsv = cv.cvtColor(source, cv.COLOR_RGB2HSV)
-    h, s, v = hsv[0, 0].astype(np.int16)
-    lo = np.array([max(h - h_delta, 0),   max(s - s_delta, 0),   max(v - v_delta, 0)],   dtype=np.uint8)
-    hi = np.array([min(h + h_delta, 179), min(s + s_delta, 255), min(v + v_delta, 255)], dtype=np.uint8)
+    h = int(hsv[0, 0, 0])
+    lo = np.array([max(h - h_delta, 0),  s_lo, v_lo], dtype=np.uint8)
+    hi = np.array([min(h + h_delta, 179), 255,   255], dtype=np.uint8)
     return lo, hi
 
 
-def _contours_for_color(img_bgr: np.ndarray, rgb: tuple) -> list:
+def _contours_for_color(img_bgr: np.ndarray, rgb: tuple, **kw) -> list:
     hsv = cv.cvtColor(img_bgr, cv.COLOR_BGR2HSV)
-    lo, hi = _hsv_bounds(rgb)
+    lo, hi = _hsv_bounds(rgb, **kw)
     mask = cv.inRange(hsv, lo, hi)
     contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     return list(contours)
@@ -74,8 +75,10 @@ def touches_coast(img_bgr: np.ndarray, roi: tuple) -> dict:
     """
     x1, y1, x2, y2 = _roi_rect(roi)
 
-    swell_contours = _contours_for_color(img_bgr, YELLOW_RGB)
-    land_contours  = _contours_for_color(img_bgr, LAND_RGB)
+    # yellow: hue-only match (wide S/V) to handle AEMET's exact shade
+    # land:   tighter S threshold to avoid picking up near-white sea areas
+    swell_contours = _contours_for_color(img_bgr, YELLOW_RGB, h_delta=5, s_lo=100, v_lo=100)
+    land_contours  = _contours_for_color(img_bgr, LAND_RGB,   h_delta=5, s_lo=30,  v_lo=180)
 
     # keep only land contour points that fall inside the ROI
     roi_land_points = []
